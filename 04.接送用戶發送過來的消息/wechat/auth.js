@@ -4,7 +4,11 @@ const sha1 = require("sha1");
 //insert config
 const config = require("../config");
 //insert tool
-const { getUserDataAsync, parseXMLAsync } = require("../utils/tool");
+const {
+  getUserDataAsync,
+  parseXMLAsync,
+  formatMessage
+} = require("../utils/tool");
 
 module.exports = () => {
   return async (req, res, next) => {
@@ -57,9 +61,53 @@ module.exports = () => {
       //將xml數據解析為js對象
       const jsData = await parseXMLAsync(xmlData);
       console.log(jsData);
+      /*
+      { xml:
+        { ToUserName: [ 'gh_1dcd20e97049' ],
+          FromUserName: [ 'oRCTp0hQ61FV_AE_XT-MLs21uCDo' ],
+          CreateTime: [ '1575026270' ],
+          MsgType: [ 'text' ],
+          Content: [ '666' ],
+          MsgId: [ '22548952177860548' ] } }
+      */
+      //格式化js數據方便以後使用
+      const message = formatMessage(jsData); //是同步的方法，不用加await
+      console.log(message);
+
+      //簡單的自動回覆文本內容
+      /*
+      一旦遇到以下情况，微信都会在公众号会话中，向用户下发系统提示“该公众号暂时无法提供服务，请稍后再试”
+        1、开发者在5秒内未回复任何内容 
+        2、开发者回复了异常数据，比如JSON数据，字符串，xml數據中有多餘的空格....等
+       */
+      let content = "Hello, insert a key please";
+      //判斷用戶發送的消息是否是文本消息
+      if (message.MsgType === "text") {
+        //判斷用戶發送的消息內容具體是什麼
+        if (message.Content === "1") {
+          content = "Great one!";
+        } else if (message.Content === "2") {
+          content = "Great two!";
+        } else if (message.Content.match("a")) {
+          content = "It has an A";
+        } else {
+          content = "try again";
+        }
+      }
+      //最終回覆用戶消息
+      let replyMessage = `<xml>
+      <ToUserName><![CDATA[${message.FromUserName}]]></ToUserName>
+      <FromUserName><![CDATA[${message.ToUserName}]]></FromUserName>
+      <CreateTime>${Date.now()}</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType>
+      <Content><![CDATA[${content}]]></Content>
+    </xml>`;
+
+      //返回響應給微信伺服器
+      res.send(replyMessage);
 
       //如果開發者服務器沒有返回響應給微信服務器，微信服務器會發送三次請求
-      res.end(""); //停止發送三次請求
+      //res.end(""); //停止發送三次請求
     } else {
       res.end("error");
     }

@@ -31,5 +31,24 @@ module.exports = {
         }
       });
     });
+  },
+  formatMessage(jsData) {
+    let message = {};
+    //獲取xml
+    jsData = jsData.xml;
+    //判斷數據是否是一個對象
+    if (typeof jsData === "object") {
+      //編列object
+      for (let key in jsData) {
+        //獲取屬性質
+        let value = jsData[key];
+        //過濾空的數據
+        if (Array.isArray(value) && value > 0) {
+          //將合法的數據複製到message對象上
+          message[key] = value[0];
+        }
+      }
+    }
+    return message;
   }
 };
