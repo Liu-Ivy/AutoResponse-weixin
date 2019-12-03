@@ -47,11 +47,14 @@ module.exports = () => {
         }
       }
       console.log("Message-Content", message.Content);
-      let replyMessage = `<xml><ToUserName><![CDATA[${
-        message.FromUserName
-      }]></ToUserName><FromUserName><![CDATA[${
-        message.ToUserName
-      }]]></FromUserName><CreateTime>${Date.now()}</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[${content}]]></Content></xml>`;
+      let replyMessage = `<xml>
+      <ToUserName><![CDATA[${message.FromUserName}]]></ToUserName>
+      <FromUserName><![CDATA[${message.ToUserName}]]></FromUserName>
+      <CreateTime>${Date.now()}</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType>
+      <Content><![CDATA[${content}]]></Content>
+      <MsgId>1234567890123456</MsgId>
+    </xml>`;
 
       res.send(replyMessage);
       console.log("replyMessage", replyMessage);
