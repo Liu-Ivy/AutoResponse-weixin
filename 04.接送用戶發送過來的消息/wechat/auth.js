@@ -28,7 +28,7 @@ module.exports = () => {
 
       const xmlData = await getUserDataAsync(req);
       console.log("xmlData:", xmlData);
-      據解析為js對象;
+      // 據解析為js對象;
       const jsData = await parseXMLAsync(xmlData);
       console.log("jsData:", jsData);
       const message = formatMessage(jsData);
