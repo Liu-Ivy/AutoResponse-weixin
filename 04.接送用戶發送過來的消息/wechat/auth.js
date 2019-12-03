@@ -20,10 +20,8 @@ module.exports = () => {
 
     /*
     微信服務器會發送兩種類型的消息給開發者服務器
-    1.GET請求
-    -驗證服務器的有效性
-    2.POST請求
-    -微信服務器會將用戶發送的數據以POST請求的方式轉發到開發者服務器上
+    1.GET請求-驗證服務器的有效性
+    2.POST請求-微信服務器會將用戶發送的數據以POST請求的方式轉發到開發者服務器上
     */
     if (req.method === "GET") {
       if (sha1Str === signature) {
@@ -38,17 +36,18 @@ module.exports = () => {
         //說明消息不是微信服務器
         res.end("error");
       }
-      console.log(req.query);
+      console.log("The req.query:", req.query);
+
       /*
       { signature: '31d26c9a38cada43b57ea37939a2d3a1db1be0c6',
-        timestamp: '1574959760',
-        nonce: '852656027',
-        openid: 'oRCTp0hQ61FV_AE_XT-MLs21uCDo' }//用戶的微信id
+      timestamp: '1574959760',
+      nonce: '852656027',
+      openid: 'oRCTp0hQ61FV_AE_XT-MLs21uCDo' }//用戶的微信id
       */
 
       //接收請求體中的數據,適合流式數據而非JSON,需定義特殊方法
       const xmlData = await getUserDataAsync(req);
-      console.log(xmlData);
+      console.log("xmlData:", xmlData);
       /*
       <xml><ToUserName><![CDATA[gh_1dcd20e97049]]></ToUserName> 開發者ID
       <FromUserName><![CDATA[oRCTp0hQ61FV_AE_XT-MLs21uCDo]]></FromUserName> 用戶openid
@@ -60,7 +59,7 @@ module.exports = () => {
       */
       //將xml數據解析為js對象
       const jsData = await parseXMLAsync(xmlData);
-      console.log(jsData);
+      console.log("jsData:", jsData);
       /*
       { xml:
         { ToUserName: [ 'gh_1dcd20e97049' ],
@@ -72,7 +71,7 @@ module.exports = () => {
       */
       //格式化js數據方便以後使用
       const message = formatMessage(jsData); //是同步的方法，不用加await
-      console.log(message);
+      console.log("format-message:", message);
 
       //簡單的自動回覆文本內容
       /*
@@ -80,7 +79,7 @@ module.exports = () => {
         1、开发者在5秒内未回复任何内容 
         2、开发者回复了异常数据，比如JSON数据，字符串，xml數據中有多餘的空格....等
        */
-      let content = "Hello, insert a key please";
+      let content = "I don't understand";
       //判斷用戶發送的消息是否是文本消息
       if (message.MsgType === "text") {
         //判斷用戶發送的消息內容具體是什麼
@@ -90,21 +89,19 @@ module.exports = () => {
           content = "Great two!";
         } else if (message.Content.match("a")) {
           content = "It has an A";
-        } else {
-          content = "try again";
         }
       }
+      console.log("Message", message.MsgType);
       //最終回覆用戶消息
-      let replyMessage = `<xml>
-      <ToUserName><![CDATA[${message.FromUserName}]]></ToUserName>
-      <FromUserName><![CDATA[${message.ToUserName}]]></FromUserName>
-      <CreateTime>${Date.now()}</CreateTime>
-      <MsgType><![CDATA[text]]></MsgType>
-      <Content><![CDATA[${content}]]></Content>
-    </xml>`;
+      let replyMessage = `<xml><ToUserName><![CDATA[${
+        message.FromUserName
+      }]></ToUserName><FromUserName><![CDATA[${
+        message.ToUserName
+      }]]></FromUserName><CreateTime>${Date.now()}</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[${content}]]></Content></xml>`;
 
       //返回響應給微信伺服器
       res.send(replyMessage);
+      console.log("replyMessage", replyMessage);
 
       //如果開發者服務器沒有返回響應給微信服務器，微信服務器會發送三次請求
       //res.end(""); //停止發送三次請求

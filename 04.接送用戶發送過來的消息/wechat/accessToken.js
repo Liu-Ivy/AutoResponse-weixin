@@ -48,7 +48,7 @@ class Wechat {
     return new Promise((resolve, reject) => {
       rp({ method: "GET", url: url, json: true })
         .then(res => {
-          console.log(res);
+          console.log("RES:", res);
           /*
          { access_token:
          '27_cIz0jEnmODAiN-ntVVfc_vs7djPoqylg5PUwy0f2YGmHfvh1Dn7sEYhjFCurn8XI-TEQM45dEI_OEks9RrwTmBOUaUCn6CDpEGQbmY4CnPp75aeq8YB-zkbuFVNdKKQkuzFgzB7KA85k-tR2COVhAIAXJQ',
