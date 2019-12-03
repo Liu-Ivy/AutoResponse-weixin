@@ -32,7 +32,7 @@ module.exports = () => {
       const jsData = await parseXMLAsync(xmlData);
       console.log("jsData:", jsData);
       const message = formatMessage(jsData);
-      console.log("format-message:", message);
+      console.log("messageFormated:", message);
 
       let content = "I don't understand";
       //判斷用戶發送的消息是否是文本消息
@@ -46,7 +46,7 @@ module.exports = () => {
           content = "It has an A";
         }
       }
-      console.log("Message", message.MsgType);
+      console.log("Message-Content", message.Content);
       let replyMessage = `<xml><ToUserName><![CDATA[${
         message.FromUserName
       }]></ToUserName><FromUserName><![CDATA[${
