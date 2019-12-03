@@ -37,7 +37,6 @@ module.exports = options => {
         <Url><![CDATA[${item.url}]]></Url>
         </item>`;
     });
-
     replyMessage += `</Articles>`;
   }
 

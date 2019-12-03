@@ -7,6 +7,8 @@ const {
   parseXMLAsync,
   formatMessage
 } = require("../utils/tool");
+const template = require("./template");
+const reply = require("./reply");
 
 module.exports = () => {
   return async (req, res, next) => {
@@ -27,37 +29,14 @@ module.exports = () => {
       console.log("The req.query:", req.query);
 
       const xmlData = await getUserDataAsync(req);
-      console.log("xmlData:", xmlData);
       // 據解析為js對象;
       const jsData = await parseXMLAsync(xmlData);
-      console.log("jsData:", jsData);
       const message = formatMessage(jsData);
-      console.log("messageFormated:", message);
+      const options = reply(message);
 
-      let content = "I don't understand";
-      //判斷用戶發送的消息是否是文本消息
-      if (message.MsgType === "text") {
-        //判斷用戶發送的消息內容具體是什麼
-        if (message.Content === "1") {
-          content = "Great one!";
-        } else if (message.Content === "2") {
-          content = "Great two!";
-        } else if (message.Content.match("a")) {
-          content = "It has an A";
-        }
-      }
-      console.log("Message-Content", message.Content);
-      let replyMessage = `<xml>
-      <ToUserName><![CDATA[${message.FromUserName}]]></ToUserName>
-      <FromUserName><![CDATA[${message.ToUserName}]]></FromUserName>
-      <CreateTime>${Date.now()}</CreateTime>
-      <MsgType><![CDATA[text]]></MsgType>
-      <Content><![CDATA[${content}]]></Content>
-      <MsgId>1234567890123456</MsgId>
-    </xml>`;
-
+      const replyMessage = template(options);
+      console.log(replyMessage);
       res.send(replyMessage);
-      console.log("replyMessage", replyMessage);
 
       //res.end(""); //停止發送三次請求
     } else {
